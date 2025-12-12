@@ -1,0 +1,31 @@
+{
+  "ssh": {
+    "enabled": true,
+    "failed_login_threshold": 5,
+    "root_login_alert": true,
+    "invalid_user_alert": true
+  },
+  "apache": {
+    "enabled": true,
+    "sql_injection_alert": true,
+    "xss_alert": true,
+    "directory_traversal_alert": true,
+    "command_injection_alert": true
+  },
+  "windows": {
+    "enabled": true,
+    "failed_login_threshold": 10,
+    "privilege_escalation_alert": true
+  },
+  "output": {
+    "alert_file": "security_alerts.log",
+    "report_file": "security_report.json",
+    "html_report": true,
+    "verbose": true
+  },
+  "thresholds": {
+    "bruteforce_time_window": 300,
+    "scan_port_threshold": 10,
+    "scan_path_threshold": 20
+  }
+}

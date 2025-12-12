@@ -1,0 +1,4 @@
+
+cd Log-Analyzer
+python web_app/app.py
+ouvre http://localhost:5000

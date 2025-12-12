@@ -1,0 +1,63 @@
+{
+  "sql_injection": {
+    "patterns": [
+      "union select",
+      "select * from",
+      "insert into",
+      "drop table",
+      "' or '1'='1",
+      "1' or '1' = '1",
+      "exec xp_cmdshell",
+      "information_schema"
+    ],
+    "severity": "high",
+    "description": "Tentative d'injection SQL"
+  },
+  "xss": {
+    "patterns": [
+      "<script>",
+      "javascript:",
+      "onload=",
+      "alert(",
+      "document.cookie",
+      "eval("
+    ],
+    "severity": "medium",
+    "description": "Tentative de Cross-Site Scripting"
+  },
+  "path_traversal": {
+    "patterns": [
+      "../",
+      "..\\",
+      "/etc/passwd",
+      "/windows/win.ini",
+      "C:\\windows\\system32"
+    ],
+    "severity": "high",
+    "description": "Tentative de path traversal"
+  },
+  "file_inclusion": {
+    "patterns": [
+      "include.php?page=",
+      "page=http://",
+      "php://filter",
+      "php://input",
+      "data:text/html"
+    ],
+    "severity": "high",
+    "description": "Tentative d'inclusion de fichier"
+  },
+  "command_injection": {
+    "patterns": [
+      "; ls",
+      "; cat ",
+      "| dir",
+      "`id`",
+      "$(whoami)",
+      "system(",
+      "exec("
+    ],
+    "severity": "high",
+    "description": "Tentative d'injection de commande"
+  }
+}

@@ -1,0 +1,148 @@
+<!-- web_app/templates/dashboard.html -->
+{% extends "base.html" %} {% block title %}Dashboard - Log Analyzer{% endblock
+%} {% block extra_css %}
+<style>
+  .stat-card {
+    transition: transform 0.3s;
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  .severity-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.9em;
+  }
+  .severity-high {
+    background-color: #dc3545;
+    color: white;
+  }
+  .severity-medium {
+    background-color: #ffc107;
+    color: black;
+  }
+  .severity-low {
+    background-color: #28a745;
+    color: white;
+  }
+  .chart-container {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="card stat-card text-white bg-primary">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="card-title">FICHIERS ANALYSÉS</h6>
+            <h2 id="files-count" class="card-text">0</h2>
+          </div>
+          <i class="bi bi-file-earmark-text fs-1"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card text-white bg-success">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="card-title">LIGNES TRAITÉES</h6>
+            <h2 id="lines-count" class="card-text">0</h2>
+          </div>
+          <i class="bi bi-list-check fs-1"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card text-white bg-warning">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="card-title">ALERTES TOTALES</h6>
+            <h2 id="alerts-total" class="card-text">0</h2>
+          </div>
+          <i class="bi bi-bell fs-1"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card text-white bg-danger">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="card-title">ALERTES HAUTES</h6>
+            <h2 id="high-alerts" class="card-text">0</h2>
+          </div>
+          <i class="bi bi-exclamation-triangle fs-1"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-8">
+    <div class="chart-container">
+      <h5>📊 Répartition des Alertes par Type</h5>
+      <canvas id="alertsByTypeChart"></canvas>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="chart-container">
+      <h5>⚠️ Alertes par Sévérité</h5>
+      <canvas id="severityChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <div class="col-md-6">
+    <div class="chart-container">
+      <h5>🌐 Top 10 IPs Suspectes</h5>
+      <canvas id="topIpsChart"></canvas>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="chart-container">
+      <h5>🚨 Alertes Récentes</h5>
+      <div id="recent-alerts" style="max-height: 300px; overflow-y: auto">
+        <div class="text-center text-muted my-5">
+          <i class="bi bi-inbox fs-1"></i>
+          <p>Aucune alerte pour le moment</p>
+          <a href="{{ url_for('upload_file') }}" class="btn btn-primary">
+            <i class="bi bi-upload"></i> Analyser des logs
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">📈 Activité Temporelle</h5>
+      </div>
+      <div class="card-body">
+        <canvas id="timelineChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

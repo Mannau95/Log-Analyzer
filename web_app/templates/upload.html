@@ -1,0 +1,160 @@
+<!-- web_app/templates/upload.html -->
+{% extends "base.html" %} {% block title %}Upload - Log Analyzer{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="mb-0">
+          <i class="bi bi-upload"></i> Upload de Fichiers de Logs
+        </h4>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle"></i>
+          Formats supportés : SSH (auth.log, secure), Apache/Nginx (access.log),
+          Windows Event Logs
+        </div>
+
+        <form id="uploadForm" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="logfile" class="form-label"
+              >Sélectionner un fichier de logs</label
+            >
+            <input
+              class="form-control"
+              type="file"
+              id="logfile"
+              name="logfile"
+              accept=".log,.txt,.csv"
+            />
+            <div class="form-text">Taille maximale : 16MB</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="log_type" class="form-label">Type de log</label>
+            <select class="form-select" id="log_type" name="log_type">
+              <option value="auto">Auto-détection</option>
+              <option value="ssh">SSH/Auth Logs</option>
+              <option value="apache">Apache/Nginx</option>
+              <option value="windows">Windows Event Logs</option>
+            </select>
+          </div>
+
+          <div class="mb-3 form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="realtime"
+              name="realtime"
+            />
+            <label class="form-check-label" for="realtime"
+              >Surveillance en temps réel (tail -f)</label
+            >
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary btn-lg" id="uploadBtn">
+              <i class="bi bi-cloud-upload"></i> Analyser le fichier
+            </button>
+            <a
+              href="{{ url_for('dashboard') }}"
+              class="btn btn-outline-secondary"
+            >
+              <i class="bi bi-speedometer2"></i> Retour au Dashboard
+            </a>
+          </div>
+        </form>
+
+        <div id="uploadResult" class="mt-3" style="display: none">
+          <div class="alert alert-success">
+            <i class="bi bi-check-circle"></i>
+            <span id="resultMessage"></span>
+          </div>
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('alerts_page') }}" class="btn btn-success">
+              <i class="bi bi-bell"></i> Voir les Alertes
+            </a>
+            <button id="generateReportBtn" class="btn btn-info">
+              <i class="bi bi-download"></i> Générer un Rapport
+            </button>
+          </div>
+        </div>
+
+        <div id="uploadProgress" class="mt-3" style="display: none">
+          <div class="progress">
+            <div
+              class="progress-bar progress-bar-striped progress-bar-animated"
+              style="width: 0%"
+            ></div>
+          </div>
+          <div class="text-center mt-2">
+            <span id="progressText">Analyse en cours...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-4">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="bi bi-lightning"></i> Analyse Rapide (Exemples)
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="card text-center h-100">
+              <div class="card-body">
+                <i class="bi bi-terminal fs-1 text-primary"></i>
+                <h5 class="card-title">SSH Bruteforce</h5>
+                <p class="card-text">
+                  Détection de tentatives de connexion SSH répétées
+                </p>
+                <button
+                  class="btn btn-outline-primary test-example"
+                  data-example="ssh"
+                >
+                  Tester avec un exemple
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card text-center h-100">
+              <div class="card-body">
+                <i class="bi bi-globe fs-1 text-success"></i>
+                <h5 class="card-title">Attaques Web</h5>
+                <p class="card-text">SQLi, XSS, scans de répertoires</p>
+                <button
+                  class="btn btn-outline-success test-example"
+                  data-example="web"
+                >
+                  Tester avec un exemple
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card text-center h-100">
+              <div class="card-body">
+                <i class="bi bi-windows fs-1 text-info"></i>
+                <h5 class="card-title">Windows Events</h5>
+                <p class="card-text">Connexions, échecs d'authentification</p>
+                <button
+                  class="btn btn-outline-info test-example"
+                  data-example="windows"
+                >
+                  Tester avec un exemple
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+{% endblock %}

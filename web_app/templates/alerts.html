@@ -1,0 +1,214 @@
+<!-- web_app/templates/alerts.html -->
+{% extends "base.html" %} {% block title %}Alertes - Log Analyzer{% endblock %}
+{% block extra_css %}
+<style>
+  .alert-card {
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border-left: 5px solid;
+    transition: all 0.3s;
+  }
+  .alert-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  .alert-high {
+    border-left-color: #dc3545;
+  }
+  .alert-medium {
+    border-left-color: #ffc107;
+  }
+  .alert-low {
+    border-left-color: #28a745;
+  }
+  .filter-badge {
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .filter-badge:hover {
+    transform: scale(1.1);
+  }
+  .alert-icon {
+    font-size: 1.5em;
+    margin-right: 10px;
+  }
+  .timestamp {
+    font-size: 0.85em;
+    color: #6c757d;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="row mb-4">
+  <div class="col-md-8">
+    <h2>
+      <i class="bi bi-bell"></i> Alertes de Sécurité
+      <span class="badge bg-secondary" id="total-alerts-count">0</span>
+    </h2>
+  </div>
+  <div class="col-md-4 text-end">
+    <div class="btn-group" role="group">
+      <button
+        type="button"
+        class="btn btn-outline-danger filter-btn"
+        data-severity="high"
+      >
+        <i class="bi bi-exclamation-triangle"></i> Hautes
+        <span class="badge bg-danger" id="high-count">0</span>
+      </button>
+      <button
+        type="button"
+        class="btn btn-outline-warning filter-btn"
+        data-severity="medium"
+      >
+        <i class="bi bi-exclamation-circle"></i> Moyennes
+        <span class="badge bg-warning" id="medium-count">0</span>
+      </button>
+      <button
+        type="button"
+        class="btn btn-outline-success filter-btn"
+        data-severity="low"
+      >
+        <i class="bi bi-info-circle"></i> Basses
+        <span class="badge bg-success" id="low-count">0</span>
+      </button>
+      <button
+        type="button"
+        class="btn btn-outline-primary filter-btn"
+        data-severity="all"
+      >
+        <i class="bi bi-filter"></i> Toutes
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-3">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="bi bi-search"></i>
+              </span>
+              <input
+                type="text"
+                class="form-control"
+                id="search-alerts"
+                placeholder="Rechercher dans les alertes..."
+              />
+            </div>
+          </div>
+          <div class="col-md-3">
+            <select class="form-select" id="alert-type-filter">
+              <option value="all">Tous les types</option>
+              <option value="SSH">SSH</option>
+              <option value="WEB">Web</option>
+              <option value="WINDOWS">Windows</option>
+              <!-- Dynamiquement rempli -->
+            </select>
+          </div>
+          <div class="col-md-3">
+            <button class="btn btn-info w-100" id="export-alerts">
+              <i class="bi bi-download"></i> Exporter
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <div id="alerts-container">
+      <!-- Les alertes seront chargées ici via JavaScript -->
+      <div class="text-center my-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+        <p class="mt-3">Chargement des alertes...</p>
+      </div>
+    </div>
+
+    <nav aria-label="Pagination des alertes" class="mt-4">
+      <ul class="pagination justify-content-center" id="pagination">
+        <!-- Généré dynamiquement -->
+      </ul>
+    </nav>
+  </div>
+</div>
+
+<!-- Modal pour les détails d'alerte -->
+<div class="modal fade" id="alertDetailModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="alertDetailTitle">
+          <i class="bi bi-info-circle"></i> Détails de l'Alerte
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6">
+            <table class="table table-sm">
+              <tr>
+                <th>Type:</th>
+                <td id="detail-type"></td>
+              </tr>
+              <tr>
+                <th>Sévérité:</th>
+                <td><span id="detail-severity" class="badge"></span></td>
+              </tr>
+              <tr>
+                <th>Timestamp:</th>
+                <td id="detail-timestamp"></td>
+              </tr>
+              <tr>
+                <th>Source:</th>
+                <td id="detail-source"></td>
+              </tr>
+            </table>
+          </div>
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h6 class="mb-0">Actions Recommandées</h6>
+              </div>
+              <div class="card-body">
+                <ul id="recommended-actions">
+                  <!-- Rempli dynamiquement -->
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-3">
+          <h6>Message Complet:</h6>
+          <div class="alert alert-light" id="detail-message"></div>
+        </div>
+        <div class="mt-3">
+          <h6>Détails Techniques:</h6>
+          <pre class="bg-dark text-light p-3 rounded" id="detail-raw"></pre>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle"></i> Fermer
+        </button>
+        <button type="button" class="btn btn-primary" id="block-ip-btn">
+          <i class="bi bi-shield-slash"></i> Bloquer cette IP
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script src="{{ url_for('static', filename='js/alerts.js') }}"></script>
+{% endblock %}
